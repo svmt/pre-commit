@@ -88,6 +88,14 @@
   files: \.((ya?ml)|(tpl))$
   require_serial: true
 
+- id: helmlint-with-values
+  name: helmlint-with-values
+  description: Run helm lint, a linter for helm charts
+  entry: hooks/helmlint-with-values.sh
+  language: script
+  files: \.((ya?ml)|(tpl))$
+  require_serial: true
+
 - id: markdown-link-check
   name: markdown-link-check
   description: Run markdown-link-check to check all the relative and absolute links in markdown docs.
