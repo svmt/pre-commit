@@ -98,6 +98,9 @@ chart_path() {
     echo "$changed_file_dir"
     return 0
   fi
+
+  # None of the above, so recurse and do again in the parent dir
+  chart_path "$changed_file_dir"
 }
 
 for file in "$@"; do
