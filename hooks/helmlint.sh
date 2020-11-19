@@ -60,21 +60,6 @@ debug() {
   fi
 }
 
-debug "$@"
-
-for file in "$@"; do
-  debug "File: $file"
-  # debug "Checking $file"
-  # $file_chart_path=$(chart_path "$file")
-  # debug "Resolved $file to chart path $file_chart_path"
-  # if [[ ! -z "$file_chart_path" ]]; then
-  #   break
-  # fi
-done
-
-exit 1
-
-
 # Recursively walk up the tree until the current working directory and check if the changed file is part of a helm
 # chart. Helm charts have a Chart.yaml file.
 chart_path() {
@@ -117,16 +102,21 @@ chart_path() {
 
 for file in "$@"; do
   debug "Checking $file"
-  $file_chart_path=$(chart_path "$file")
+  file_chart_path=$(chart_path "$file")
   debug "Resolved $file to chart path $file_chart_path"
-  if [[ ! -z "$file_chart_path" ]]; then
+  if [[ -n "$file_chart_path" ]]; then
     break
   fi
 done
 
-for file in $(ls "$file_chart_path" | grep -E "values-.*\.yaml"); do
-  debug "$file"
-  helm lint -f "$file_chart_path/values.yaml" -f "$file_chart_path/$file" "$file_chart_path"
-done
+if [[ -z "$file_chart_path" ]]; then
+  debug "Chart path is not resolved."
+  exit 1
+fi
 
-exit 1
+# Lint for all possible custom values files matching patter "values-.*\.yaml"
+for file in $(ls "$file_chart_path" | grep -E "values-.*\.yaml"); do
+  debug "Lint with custom values: $file"
+  echo ""
+  helm lint -f "${file_chart_path}/values.yaml" -f "${file_chart_path}/${file}" "$file_chart_path"
+done
